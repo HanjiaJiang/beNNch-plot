@@ -315,10 +315,10 @@ class Plot():
                     color=self.color_params[y],
                     fmt=fmt)
 
-        if self.x_ticks == 'data':
-            axis.set_xticks(self.df[self.x_axis].values)
-        else:
-            axis.set_xticks(self.x_ticks)
+        # if self.x_ticks == 'data':
+        #    axis.set_xticks(self.df[self.x_axis].values)
+        # else:
+        #    axis.set_xticks(self.x_ticks)
 
         if log[0]:
             axis.set_xscale('log')
