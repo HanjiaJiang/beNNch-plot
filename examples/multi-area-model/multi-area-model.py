@@ -49,7 +49,8 @@ fig = plt.figure(figsize=(12, 6), constrained_layout=True)
 spec = gridspec.GridSpec(ncols=2, nrows=2, figure=fig,
                          width_ratios=widths, height_ratios=heights)
 
-ax1 = fig.add_subplot(spec[:, 0])
+ax1 = fig.add_subplot(spec[0, 0])
+ax1a = fig.add_subplot(spec[1, 0])
 ax2 = fig.add_subplot(spec[0, 1])
 ax3 = fig.add_subplot(spec[1, 1])
 
@@ -60,6 +61,8 @@ B.plot_fractions(axis=ax1,
                  interpolate=True,
                  step=None,
                  error=True)
+B.plot_main(quantities=['total_spike_count_per_s'], axis=ax1a, error=False)
+B.plot_main(quantities=['total_spike_count_per_s'], axis=ax1a, error=True)
 B.plot_main(quantities=['sim_factor'], axis=ax2, error=True)
 B.plot_fractions(axis=ax2,
                  fill_variables=[
@@ -75,13 +78,16 @@ B.plot_fractions(axis=ax3,
                      'frac_phase_deliver'])
 
 # Set labels, limits etc.
+ax1a.set_ylim(bottom=0)
 ax2.set_ylim(0, 300)
 B.simple_axis(ax1)
 B.simple_axis(ax2)
+B.simple_axis(ax1a)
 
-ax1.set_xlabel('Number of nodes')
 ax1.set_ylabel(r'$T_{\mathrm{wall}}$ [s] for $T_{\mathrm{model}} =$'
                + f'{np.unique(B.df.model_time_sim.values)[0]} s')
+ax1a.set_xlabel('Number of nodes')
+ax1a.set_ylabel('Total spikes/s')
 ax2.set_ylabel(r'real-time factor $T_{\mathrm{wall}}/$'
                r'$T_{\mathrm{model}}$')
 ax3.set_xlabel('Number of nodes')

@@ -219,6 +219,8 @@ class Plot():
                                             self.df['num_nodes'])
         self.df['total_memory_per_node_std'] = (self.df['total_memory_std'] /
                                                 self.df['num_nodes'])
+        self.df['total_spike_count_per_s'] = (self.df['local_spike_counter'] / self.df['model_time_sim'])
+        self.df['total_spike_count_per_s_std'] = (self.df['local_spike_counter_std'] / self.df['model_time_sim'])
 
     def plot_fractions(self, axis, fill_variables,
                        interpolate=False, step=None, log=False, alpha=1.,
@@ -311,7 +313,7 @@ class Plot():
                     marker=None,
                     capsize=3,
                     capthick=1,
-                    label=self.label_params[y],
+                    #label=self.label_params[y],
                     color=self.color_params[y],
                     fmt=fmt)
 

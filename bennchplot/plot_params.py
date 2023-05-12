@@ -64,6 +64,8 @@ color_params = {
     'phase_collocate_factor': light.light_yellow,
     'total_memory': light.olive,
     'total_memory_per_node': light.pear,
+    'local_spike_counter': light.light_cyan,
+    'total_spike_count_per_s': light.light_blue,
 }
 
 label_params = {
@@ -95,4 +97,6 @@ label_params = {
     'phase_total_factor': 'All phases',
     'total_memory': 'Memory',
     'total_memory_per_node': 'Memory per node',
+    'local_spike_counter': 'Spike count',
+    'total_spike_count_per_s': 'Total spikes/s',
 }
