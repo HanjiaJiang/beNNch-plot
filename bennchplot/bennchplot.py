@@ -62,7 +62,8 @@ class Plot():
                  color_params=pp.color_params,
                  additional_params=pp.additional_params,
                  label_params=pp.label_params,
-                 time_scaling=1):
+                 time_scaling=1,
+                 ctrl_file='/path/to/control'):
 
         self.x_axis = x_axis
         self.x_ticks = x_ticks
@@ -71,11 +72,15 @@ class Plot():
         self.color_params = color_params
         self.label_params = label_params
         self.time_scaling = time_scaling
+        self.df_data = None
+        self.df_ctrl = None
 
         self.load_data(data_file)
+        self.load_data(ctrl_file, control=True)
         self.compute_derived_quantities()
+        self.compute_derived_quantities(control=True)
 
-    def load_data(self, data_file):
+    def load_data(self, data_file, control=False):
         """
         Load data to dataframe, to be used later when plotting.
 
@@ -90,15 +95,16 @@ class Plot():
         ------
         ValueError
         """
+        print(f'Loading {data_file} ...')
         try:
-            self.df = pd.read_csv(data_file, delimiter=',')
+            df = pd.read_csv(data_file, delimiter=',')
         except FileNotFoundError:
             print('File could not be found')
             quit()
 
         for py_timer in ['py_time_create', 'py_time_connect']:
-            if py_timer not in self.df:
-                self.df[py_timer] = np.nan
+            if py_timer not in df:
+                df[py_timer] = np.nan
                 raise ValueError('Warning! Python timers are not found. ' +
                                  'Construction time measurements will not ' +
                                  'be accurate.')
@@ -120,13 +126,13 @@ class Plot():
                  'wall_time_communicate_prepare': ['mean', 'std'],
                  'py_time_create': ['mean', 'std'],
                  'py_time_connect': ['mean', 'std'],
+                 'network_size': 'first',
                  'base_memory': ['mean', 'std'],
                  'network_memory': ['mean', 'std'],
                  'init_memory': ['mean', 'std'],
                  'total_memory': ['mean', 'std'],
                  'num_connections': ['mean', 'std'],
                  'local_spike_counter': ['mean', 'std'],
-
                  }
 
         col = ['num_nodes', 'threads_per_task', 'tasks_per_node',
@@ -148,83 +154,91 @@ class Plot():
                'wall_time_communicate_prepare_std',
                'py_time_create', 'py_time_create_std',
                'py_time_connect', 'py_time_connect_std',
+               'network_size',
                'base_memory', 'base_memory_std',
                'network_memory', 'network_memory_std',
                'init_memory', 'init_memory_std',
                'total_memory', 'total_memory_std',
                'num_connections', 'num_connections_std',
-               'local_spike_counter', 'local_spike_counter_std']
+               'local_spike_counter', 'local_spike_counter_std',]
 
-        self.df = self.df.drop('rng_seed', axis=1).groupby(
+        df = df.drop('rng_seed', axis=1).groupby(
             ['num_nodes',
              'threads_per_task',
              'tasks_per_node',
              'model_time_sim'], as_index=False).agg(dict_)
-        self.df.columns = col
+        df.columns = col
+        if control:
+            self.df_ctrl = df.copy()
+        else:
+            self.df_data = df.copy()
 
-    def compute_derived_quantities(self):
+    def compute_derived_quantities(self, control=False):
         """
         Do computations to get parameters needed for plotting.
         """
-
-        self.df['num_nvp'] = (
-            self.df['threads_per_task'] * self.df['tasks_per_node']
+        if control:
+            df = self.df_ctrl
+        else:
+            df = self.df_data
+        df['num_nvp'] = (
+            df['threads_per_task'] * df['tasks_per_node']
         )
-        self.df['model_time_sim'] /= self.time_scaling
-        self.df['wall_time_create+wall_time_connect'] = (
-            self.df['py_time_create'] + self.df['py_time_connect'])
-        self.df['wall_time_create+wall_time_connect_std'] = (
-            np.sqrt((self.df['wall_time_create_std']**2 +
-                     self.df['wall_time_connect_std']**2)))
-        self.df['sim_factor'] = (self.df['wall_time_sim'] /
-                                 self.df['model_time_sim'])
-        self.df['sim_factor_std'] = (self.df['wall_time_sim_std'] /
-                                     self.df['model_time_sim'])
-        self.df['wall_time_phase_total'] = (
-            self.df['wall_time_phase_update'] +
-            self.df['wall_time_phase_communicate'] +
-            self.df['wall_time_phase_deliver'] +
-            self.df['wall_time_phase_collocate'])
-        self.df['wall_time_phase_total_std'] = \
+        df['model_time_sim'] /= self.time_scaling
+        df['wall_time_create+wall_time_connect'] = (
+            df['py_time_create'] + df['py_time_connect'])
+        df['wall_time_create+wall_time_connect_std'] = (
+            np.sqrt((df['wall_time_create_std']**2 +
+                     df['wall_time_connect_std']**2)))
+        df['sim_factor'] = (df['wall_time_sim'] /
+                                 df['model_time_sim'])
+        df['sim_factor_std'] = (df['wall_time_sim_std'] /
+                                     df['model_time_sim'])
+        df['wall_time_phase_total'] = (
+            df['wall_time_phase_update'] +
+            df['wall_time_phase_communicate'] +
+            df['wall_time_phase_deliver'] +
+            df['wall_time_phase_collocate'])
+        df['wall_time_phase_total_std'] = \
             np.sqrt(
-            self.df['wall_time_phase_update_std']**2 +
-            self.df['wall_time_phase_communicate_std']**2 +
-            self.df['wall_time_phase_deliver_std']**2 +
-            self.df['wall_time_phase_collocate_std']**2
+            df['wall_time_phase_update_std']**2 +
+            df['wall_time_phase_communicate_std']**2 +
+            df['wall_time_phase_deliver_std']**2 +
+            df['wall_time_phase_collocate_std']**2
         )
-        self.df['phase_total_factor'] = (
-            self.df['wall_time_phase_total'] /
-            self.df['model_time_sim'])
-        self.df['phase_total_factor_std'] = (
-            self.df['wall_time_phase_total_std'] /
-            self.df['model_time_sim'])
+        df['phase_total_factor'] = (
+            df['wall_time_phase_total'] /
+            df['model_time_sim'])
+        df['phase_total_factor_std'] = (
+            df['wall_time_phase_total_std'] /
+            df['model_time_sim'])
 
         for phase in ['update', 'communicate', 'deliver', 'collocate']:
-            self.df['phase_' + phase + '_factor'] = (
-                self.df['wall_time_phase_' + phase] /
-                self.df['model_time_sim'])
+            df['phase_' + phase + '_factor'] = (
+                df['wall_time_phase_' + phase] /
+                df['model_time_sim'])
 
-            self.df['phase_' + phase + '_factor' + '_std'] = (
-                self.df['wall_time_phase_' + phase + '_std'] /
-                self.df['model_time_sim'])
+            df['phase_' + phase + '_factor' + '_std'] = (
+                df['wall_time_phase_' + phase + '_std'] /
+                df['model_time_sim'])
 
-            self.df['frac_phase_' + phase] = (
-                100 * self.df['wall_time_phase_' + phase] /
-                self.df['wall_time_phase_total'])
+            df['frac_phase_' + phase] = (
+                100 * df['wall_time_phase_' + phase] /
+                df['wall_time_phase_total'])
 
-            self.df['frac_phase_' + phase + '_std'] = (
-                100 * self.df['wall_time_phase_' + phase + '_std'] /
-                self.df['wall_time_phase_total'])
-        self.df['total_memory_per_node'] = (self.df['total_memory'] /
-                                            self.df['num_nodes'])
-        self.df['total_memory_per_node_std'] = (self.df['total_memory_std'] /
-                                                self.df['num_nodes'])
-        self.df['total_spike_count_per_s'] = (self.df['local_spike_counter'] / self.df['model_time_sim'])
-        self.df['total_spike_count_per_s_std'] = (self.df['local_spike_counter_std'] / self.df['model_time_sim'])
+            df['frac_phase_' + phase + '_std'] = (
+                100 * df['wall_time_phase_' + phase + '_std'] /
+                df['wall_time_phase_total'])
+        df['total_memory_per_node'] = (df['total_memory'] /
+                                            df['num_nodes'])
+        df['total_memory_per_node_std'] = (df['total_memory_std'] /
+                                                df['num_nodes'])
+        df['total_spike_count_per_s'] = (df['local_spike_counter'] / df['model_time_sim'])
+        df['total_spike_count_per_s_std'] = (df['local_spike_counter_std'] / df['model_time_sim'])
 
     def plot_fractions(self, axis, fill_variables,
                        interpolate=False, step=None, log=False, alpha=1.,
-                       error=False):
+                       error=False, control=False, line=False, label_tail=None):
         """
         Fill area between curves.
 
@@ -243,32 +257,54 @@ class Plot():
         error : bool
             whether plot should have error bars
         """
+        if control:
+            df = self.df_ctrl
+        else:
+            df = self.df_data
 
         fill_height = 0
-        for fill in fill_variables:
-            axis.fill_between(np.squeeze(self.df[self.x_axis]),
-                              fill_height,
-                              np.squeeze(self.df[fill]) + fill_height,
-                              label=self.label_params[fill],
-                              facecolor=self.color_params[fill],
-                              interpolate=interpolate,
-                              step=step,
-                              alpha=alpha,
-                              linewidth=0.5,
-                              edgecolor='#444444')
+        for i, fill in enumerate(fill_variables):
+            main_label = 'Control' if control else 'Astrocyte'
+            main_label = main_label if fill == fill_variables[-1] else None
+            line_color = 'gray' if control else 'k'
+            if control:
+                """
+                axis.plot(np.squeeze(df[self.x_axis]),
+                          np.squeeze(df[fill]) + fill_height,
+                          marker=None,
+                          color=line_color,
+                          linewidth=2,
+                          linestyle=':')
+                """
+                pass
+            else:
+                frac_label = self.label_params[fill]
+                if label_tail is not None:
+                    frac_label += label_tail 
+                axis.fill_between(np.squeeze(df[self.x_axis]),
+                                  fill_height,
+                                  np.squeeze(df[fill]) + fill_height,
+                                  label=frac_label,
+                                  facecolor=self.color_params[fill],
+                                  interpolate=interpolate,
+                                  step=step,
+                                  alpha=alpha,
+                                  linewidth=0.5,
+                                  edgecolor='#444444')
             if error:
-                axis.errorbar(np.squeeze(self.df[self.x_axis]),
-                              np.squeeze(self.df[fill]) + fill_height,
-                              yerr=np.squeeze(self.df[fill + '_std']),
+                axis.errorbar(np.squeeze(df[self.x_axis]),
+                              np.squeeze(df[fill]) + fill_height,
+                              yerr=np.squeeze(df[fill + '_std']),
                               capsize=3,
                               capthick=1,
-                              color='k',
-                              fmt='none'
+                              color=line_color,
+                              fmt='none',
+                              label=main_label
                               )
-            fill_height += self.df[fill].to_numpy()
+            fill_height += df[fill].to_numpy()
 
         if self.x_ticks == 'data':
-            axis.set_xticks(np.squeeze(self.df[self.x_axis]))
+            axis.set_xticks(np.squeeze(df[self.x_axis]))
         else:
             axis.set_xticks(self.x_ticks)
 
@@ -279,7 +315,7 @@ class Plot():
                 matplotlib.ticker.ScalarFormatter())
 
     def plot_main(self, quantities, axis, log=(False, False),
-                  error=False, fmt='none'):
+                  error=False, fmt='none', control=False, label=None, line_color=None):
         """
         Main plotting function.
 
@@ -296,29 +332,36 @@ class Plot():
         fmt : string
             matplotlib format string (fmt) for defining line style
         """
+        if control:
+            df = self.df_ctrl
+        else:
+            df = self.df_data
 
         for y in quantities:
+            line_style = ':' if control else '-'
+            line_color = self.color_params[y] if line_color is None else line_color
+            label = self.label_params[y] if label is None else label
             if not error:
-                axis.plot(self.df[self.x_axis],
-                          self.df[y],
+                axis.plot(df[self.x_axis],
+                          df[y],
                           marker=None,
-                          label=self.label_params[y],
-                          color=self.color_params[y],
-                          linewidth=2)
+                          color=line_color,
+                          linewidth=2,
+                          linestyle=line_style)
             else:
                 axis.errorbar(
-                    self.df[self.x_axis].values,
-                    self.df[y].values,
-                    yerr=self.df[y + '_std'].values,
+                    df[self.x_axis].values,
+                    df[y].values,
+                    yerr=df[y + '_std'].values,
                     marker=None,
                     capsize=3,
                     capthick=1,
-                    #label=self.label_params[y],
-                    color=self.color_params[y],
+                    label=label,
+                    color=line_color,
                     fmt=fmt)
 
         # if self.x_ticks == 'data':
-        #    axis.set_xticks(self.df[self.x_axis].values)
+        #    axis.set_xticks(df[self.x_axis].values)
         # else:
         #    axis.set_xticks(self.x_ticks)
 

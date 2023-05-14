@@ -50,8 +50,10 @@ spec = gridspec.GridSpec(ncols=2, nrows=2, figure=fig,
                          width_ratios=widths, height_ratios=heights)
 
 ax1 = fig.add_subplot(spec[0, 0])
+ax1_twin = ax1.twiny()
 ax1a = fig.add_subplot(spec[1, 0])
 ax2 = fig.add_subplot(spec[0, 1])
+ax2_twin = ax2.twiny()
 ax3 = fig.add_subplot(spec[1, 1])
 
 # Add plots
@@ -80,9 +82,9 @@ B.plot_fractions(axis=ax3,
 # Set labels, limits etc.
 ax1a.set_ylim(bottom=0)
 ax2.set_ylim(0, 300)
-B.simple_axis(ax1)
-B.simple_axis(ax2)
-B.simple_axis(ax1a)
+#B.simple_axis(ax1)
+#B.simple_axis(ax2)
+#B.simple_axis(ax1a)
 
 ax1.set_ylabel(r'$T_{\mathrm{wall}}$ [s] for $T_{\mathrm{model}} =$'
                + f'{np.unique(B.df.model_time_sim.values)[0]} s')
@@ -95,6 +97,19 @@ ax3.set_ylabel(r'relative $T_{\mathrm{wall}}$ [%]')
 
 ax1.legend()
 ax2.legend()
+
+ax1_twin.set_xticks(ax1.get_xticks())
+ax1_twin.set_xticklabels(['20000', '40000', '60000', '80000', '100000', '1200000'])
+ax1_twin.set_xlabel('Number of cells')
+ax2_twin.set_xticks(ax2.get_xticks())
+ax2_twin.set_xticklabels(['20000', '40000', '60000', '80000', '100000', '1200000'])
+ax2_twin.set_xlabel('Number of cells')
+ax1a.set_xticks(ax1.get_xticks())
+ax1.set_xticklabels([])
+ax2.set_xticklabels([])
+
+ax1_twin.set_xlim(ax1.get_xlim())
+ax2_twin.set_xlim(ax2.get_xlim())
 
 # Save figure
 plt.savefig('scaling.pdf')
