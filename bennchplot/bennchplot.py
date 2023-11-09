@@ -238,7 +238,7 @@ class Plot():
 
     def plot_fractions(self, axis, fill_variables,
                        interpolate=False, step=None, log=False, alpha=1.,
-                       error=False, control=False, line=False, label_tail=None):
+                       error=False, control=False, line=False, subject=None):
         """
         Fill area between curves.
 
@@ -264,7 +264,7 @@ class Plot():
 
         fill_height = 0
         for i, fill in enumerate(fill_variables):
-            main_label = 'Control' if control else 'Astrocyte'
+            main_label = subject if isinstance(subject, str) else None
             main_label = main_label if fill == fill_variables[-1] else None
             line_color = 'gray' if control else 'k'
             if control:
@@ -279,8 +279,8 @@ class Plot():
                 pass
             else:
                 frac_label = self.label_params[fill]
-                if label_tail is not None:
-                    frac_label += label_tail 
+                if isinstance(subject, str):
+                    frac_label += f' ({subject})'
                 axis.fill_between(np.squeeze(df[self.x_axis]),
                                   fill_height,
                                   np.squeeze(df[fill]) + fill_height,
@@ -315,7 +315,7 @@ class Plot():
                 matplotlib.ticker.ScalarFormatter())
 
     def plot_main(self, quantities, axis, log=(False, False),
-                  error=False, fmt='none', control=False, label=None, line_color=None):
+                  error=False, fmt='none', control=False, subject=None, line_color=None):
         """
         Main plotting function.
 
@@ -340,7 +340,7 @@ class Plot():
         for y in quantities:
             line_style = ':' if control else '-'
             line_color = self.color_params[y] if line_color is None else line_color
-            label = self.label_params[y] if label is None else label
+            label = subject if isinstance(subject, str) else self.label_params[y]
             if not error:
                 axis.plot(df[self.x_axis],
                           df[y],
