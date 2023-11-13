@@ -103,8 +103,8 @@ label_params = {
     'total_memory_per_node': 'Memory per node',
 #    'local_spike_counter': 'Spike count',
     'total_spike_count_per_s': 'Total spikes/s',
-    'phase_signal_transmission_factor': 'Signal transmission',
-    'frac_phase_signal_transmission': 'Signal transmission',
+    'phase_signal_transmission_factor': 'Communication relevant',
+    'frac_phase_signal_transmission': 'Communication relevant',
     'phase_others_factor': 'Others',
     'frac_phase_others': 'Others',
 }
