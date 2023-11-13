@@ -291,7 +291,7 @@ class Plot():
         for i, fill in enumerate(fill_variables):
             main_label = subject if isinstance(subject, str) else None
             main_label = main_label if fill == fill_variables[-1] else None
-            line_color = 'gray' if control else 'k'
+            line_color = 'dimgray' if control else 'k'
             if control:
                 pass
             else:
@@ -366,7 +366,7 @@ class Plot():
                           df[y],
                           marker=None,
                           color=line_color,
-                          linewidth=1,
+                          linewidth=1.5,
                           linestyle=line_style)
             axis.errorbar(
                 df[self.x_axis].values,
@@ -374,7 +374,8 @@ class Plot():
                 yerr=df[y + '_std'].values,
                 marker=None,
                 capsize=3,
-                capthick=1,
+                capthick=1.5,
+                linewidth=1.5,
                 label=label,
                 color=line_color,
                 fmt=fmt)
