@@ -218,17 +218,42 @@ class Plot():
                 df['wall_time_phase_' + phase] /
                 df['model_time_sim'])
 
-            df['phase_' + phase + '_factor' + '_std'] = (
-                df['wall_time_phase_' + phase + '_std'] /
-                df['model_time_sim'])
+#            df['phase_' + phase + '_factor' + '_std'] = (
+#                df['wall_time_phase_' + phase + '_std'] /
+#                df['model_time_sim'])
 
             df['frac_phase_' + phase] = (
                 100 * df['wall_time_phase_' + phase] /
-                df['wall_time_phase_total'])
+                df['wall_time_sim'])
 
-            df['frac_phase_' + phase + '_std'] = (
-                100 * df['wall_time_phase_' + phase + '_std'] /
-                df['wall_time_phase_total'])
+#            df['frac_phase_' + phase + '_std'] = (
+#                100 * df['wall_time_phase_' + phase + '_std'] /
+#                df['wall_time_phase_total'])
+        # signal transmission = communicate + deliver + collocate
+        df['phase_signal_transmission_factor'] = (
+            df['phase_communicate_factor'] +
+            df['phase_deliver_factor'] +
+            df['phase_collocate_factor'])
+#        df['phase_signal_transmission_factor_std'] = \
+#            np.sqrt(
+#            df['phase_communicate_factor_std']**2 +
+#            df['phase_deliver_factor_std']**2 +
+#            df['phase_collocate_factor_std']**2
+#        )
+        df['frac_phase_signal_transmission'] = (
+            df['frac_phase_communicate'] +
+            df['frac_phase_deliver'] +
+            df['frac_phase_collocate'])
+#        df['frac_phase_signal_transmission_std'] = \
+#            np.sqrt(
+#            df['frac_phase_communicate_std']**2 +
+#            df['frac_phase_deliver_std']**2 +
+#            df['frac_phase_collocate_std']**2
+#        )
+        # others = the rest
+        df['phase_others_factor'] = (df['wall_time_sim'] - df['wall_time_phase_total'])/df['model_time_sim']
+        df['frac_phase_others'] = (100 - (df['frac_phase_signal_transmission'] + df['frac_phase_update']))
+
         df['total_memory_per_node'] = (df['total_memory'] /
                                             df['num_nodes'])
         df['total_memory_per_node_std'] = (df['total_memory_std'] /
@@ -238,7 +263,7 @@ class Plot():
 
     def plot_fractions(self, axis, fill_variables,
                        interpolate=False, step=None, log=False, alpha=1.,
-                       error=False, control=False, line=False, subject=None):
+                       error=False, control=False, line=False, subject=None, ylims=None):
         """
         Fill area between curves.
 
@@ -268,14 +293,6 @@ class Plot():
             main_label = main_label if fill == fill_variables[-1] else None
             line_color = 'gray' if control else 'k'
             if control:
-                """
-                axis.plot(np.squeeze(df[self.x_axis]),
-                          np.squeeze(df[fill]) + fill_height,
-                          marker=None,
-                          color=line_color,
-                          linewidth=2,
-                          linestyle=':')
-                """
                 pass
             else:
                 frac_label = self.label_params[fill]
@@ -308,6 +325,9 @@ class Plot():
         else:
             axis.set_xticks(self.x_ticks)
 
+        if isinstance(ylims, tuple):
+            axis.set_ylim(ylims)
+
         if log:
             axis.set_xscale('log')
             axis.tick_params(bottom=False, which='minor')
@@ -315,7 +335,7 @@ class Plot():
                 matplotlib.ticker.ScalarFormatter())
 
     def plot_main(self, quantities, axis, log=(False, False),
-                  error=False, fmt='none', control=False, subject=None, line_color=None):
+                  error_only=False, fmt='none', control=False, subject=None, line_color=None, ylims=None):
         """
         Main plotting function.
 
@@ -341,29 +361,31 @@ class Plot():
             line_style = ':' if control else '-'
             line_color = self.color_params[y] if line_color is None else line_color
             label = subject if isinstance(subject, str) else self.label_params[y]
-            if not error:
+            if not error_only:
                 axis.plot(df[self.x_axis],
                           df[y],
                           marker=None,
                           color=line_color,
-                          linewidth=2,
+                          linewidth=1,
                           linestyle=line_style)
-            else:
-                axis.errorbar(
-                    df[self.x_axis].values,
-                    df[y].values,
-                    yerr=df[y + '_std'].values,
-                    marker=None,
-                    capsize=3,
-                    capthick=1,
-                    label=label,
-                    color=line_color,
-                    fmt=fmt)
+            axis.errorbar(
+                df[self.x_axis].values,
+                df[y].values,
+                yerr=df[y + '_std'].values,
+                marker=None,
+                capsize=3,
+                capthick=1,
+                label=label,
+                color=line_color,
+                fmt=fmt)
 
         # if self.x_ticks == 'data':
         #    axis.set_xticks(df[self.x_axis].values)
         # else:
         #    axis.set_xticks(self.x_ticks)
+
+        if isinstance(ylims, tuple):
+            axis.set_ylim(ylims)
 
         if log[0]:
             axis.set_xscale('log')

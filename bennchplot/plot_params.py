@@ -64,6 +64,10 @@ color_params = {
     'phase_collocate_factor': light.light_yellow,
     'total_memory': light.olive,
     'total_memory_per_node': light.pear,
+    'phase_signal_transmission_factor': light.mint,
+    'frac_phase_signal_transmission': light.mint,
+    'phase_others_factor': light.light_cyan,
+    'frac_phase_others': light.light_cyan,
 #    'local_spike_counter': light.light_blue,
 #    'total_spike_count_per_s': light.olive,
 }
@@ -99,4 +103,8 @@ label_params = {
     'total_memory_per_node': 'Memory per node',
 #    'local_spike_counter': 'Spike count',
     'total_spike_count_per_s': 'Total spikes/s',
+    'phase_signal_transmission_factor': 'Signal transmission',
+    'frac_phase_signal_transmission': 'Signal transmission',
+    'phase_others_factor': 'Others',
+    'frac_phase_others': 'Others',
 }
