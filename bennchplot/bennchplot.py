@@ -127,10 +127,10 @@ class Plot():
                  'py_time_create': ['mean', 'std'],
                  'py_time_connect': ['mean', 'std'],
                  'network_size': 'first',
-                 'base_memory': ['mean', 'std'],
-                 'network_memory': ['mean', 'std'],
-                 'init_memory': ['mean', 'std'],
-                 'total_memory': ['mean', 'std'],
+#                 'base_memory': ['mean', 'std'],
+#                 'network_memory': ['mean', 'std'],
+#                 'init_memory': ['mean', 'std'],
+#                 'total_memory': ['mean', 'std'],
                  'num_connections': ['mean', 'std'],
                  'local_spike_counter': ['mean', 'std'],
                  }
@@ -155,10 +155,10 @@ class Plot():
                'py_time_create', 'py_time_create_std',
                'py_time_connect', 'py_time_connect_std',
                'network_size',
-               'base_memory', 'base_memory_std',
-               'network_memory', 'network_memory_std',
-               'init_memory', 'init_memory_std',
-               'total_memory', 'total_memory_std',
+#               'base_memory', 'base_memory_std',
+#               'network_memory', 'network_memory_std',
+#               'init_memory', 'init_memory_std',
+#               'total_memory', 'total_memory_std',
                'num_connections', 'num_connections_std',
                'local_spike_counter', 'local_spike_counter_std',]
 
@@ -254,10 +254,10 @@ class Plot():
         df['phase_others_factor'] = (df['wall_time_sim'] - df['wall_time_phase_total'])/df['model_time_sim']
         df['frac_phase_others'] = (100 - (df['frac_phase_signal_transmission'] + df['frac_phase_update']))
 
-        df['total_memory_per_node'] = (df['total_memory'] /
-                                            df['num_nodes'])
-        df['total_memory_per_node_std'] = (df['total_memory_std'] /
-                                                df['num_nodes'])
+#        df['total_memory_per_node'] = (df['total_memory'] /
+#                                            df['num_nodes'])
+#        df['total_memory_per_node_std'] = (df['total_memory_std'] /
+#                                                df['num_nodes'])
         df['total_spike_count_per_s'] = (df['local_spike_counter'] / df['model_time_sim'])
         df['total_spike_count_per_s_std'] = (df['local_spike_counter_std'] / df['model_time_sim'])
 
