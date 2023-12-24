@@ -127,10 +127,6 @@ class Plot():
                  'py_time_create': ['mean', 'std'],
                  'py_time_connect': ['mean', 'std'],
                  'network_size': 'first',
-#                 'base_memory': ['mean', 'std'],
-#                 'network_memory': ['mean', 'std'],
-#                 'init_memory': ['mean', 'std'],
-#                 'total_memory': ['mean', 'std'],
                  'num_connections': ['mean', 'std'],
                  'local_spike_counter': ['mean', 'std'],
                  }
@@ -155,10 +151,6 @@ class Plot():
                'py_time_create', 'py_time_create_std',
                'py_time_connect', 'py_time_connect_std',
                'network_size',
-#               'base_memory', 'base_memory_std',
-#               'network_memory', 'network_memory_std',
-#               'init_memory', 'init_memory_std',
-#               'total_memory', 'total_memory_std',
                'num_connections', 'num_connections_std',
                'local_spike_counter', 'local_spike_counter_std',]
 
@@ -185,8 +177,9 @@ class Plot():
             df['threads_per_task'] * df['tasks_per_node']
         )
         df['model_time_sim'] /= self.time_scaling
-        df['wall_time_create+wall_time_connect'] = (
-            df['py_time_create'] + df['py_time_connect'])
+        # try
+        df['wall_time_create+wall_time_connect'] = (df['wall_time_create'] + df['wall_time_connect'])
+#        df['wall_time_create+wall_time_connect'] = (df['py_time_create'] + df['py_time_connect'])
         df['wall_time_create+wall_time_connect_std'] = (
             np.sqrt((df['wall_time_create_std']**2 +
                      df['wall_time_connect_std']**2)))
@@ -218,46 +211,25 @@ class Plot():
                 df['wall_time_phase_' + phase] /
                 df['model_time_sim'])
 
-#            df['phase_' + phase + '_factor' + '_std'] = (
-#                df['wall_time_phase_' + phase + '_std'] /
-#                df['model_time_sim'])
-
             df['frac_phase_' + phase] = (
                 100 * df['wall_time_phase_' + phase] /
                 df['wall_time_sim'])
 
-#            df['frac_phase_' + phase + '_std'] = (
-#                100 * df['wall_time_phase_' + phase + '_std'] /
-#                df['wall_time_phase_total'])
-        # signal transmission = communicate + deliver + collocate
-        df['phase_signal_transmission_factor'] = (
+        # CCD = communicate + deliver + collocate
+        df['phase_ccd_factor'] = (
             df['phase_communicate_factor'] +
             df['phase_deliver_factor'] +
             df['phase_collocate_factor'])
-#        df['phase_signal_transmission_factor_std'] = \
-#            np.sqrt(
-#            df['phase_communicate_factor_std']**2 +
-#            df['phase_deliver_factor_std']**2 +
-#            df['phase_collocate_factor_std']**2
-#        )
-        df['frac_phase_signal_transmission'] = (
+        df['frac_phase_ccd'] = (
             df['frac_phase_communicate'] +
             df['frac_phase_deliver'] +
             df['frac_phase_collocate'])
-#        df['frac_phase_signal_transmission_std'] = \
-#            np.sqrt(
-#            df['frac_phase_communicate_std']**2 +
-#            df['frac_phase_deliver_std']**2 +
-#            df['frac_phase_collocate_std']**2
-#        )
+
         # others = the rest
         df['phase_others_factor'] = (df['wall_time_sim'] - df['wall_time_phase_total'])/df['model_time_sim']
-        df['frac_phase_others'] = (100 - (df['frac_phase_signal_transmission'] + df['frac_phase_update']))
+        df['frac_phase_others'] = (100 - (df['frac_phase_ccd'] + df['frac_phase_update']))
 
-#        df['total_memory_per_node'] = (df['total_memory'] /
-#                                            df['num_nodes'])
-#        df['total_memory_per_node_std'] = (df['total_memory_std'] /
-#                                                df['num_nodes'])
+        # total spike count
         df['total_spike_count_per_s'] = (df['local_spike_counter'] / df['model_time_sim'])
         df['total_spike_count_per_s_std'] = (df['local_spike_counter_std'] / df['model_time_sim'])
 
@@ -292,9 +264,7 @@ class Plot():
             main_label = subject if isinstance(subject, str) else None
             main_label = main_label if fill == fill_variables[-1] else None
             line_color = 'dimgray' if control else 'k'
-            if control:
-                pass
-            else:
+            if True:
                 frac_label = self.label_params[fill]
                 if isinstance(subject, str):
                     frac_label += f' ({subject})'
@@ -367,7 +337,8 @@ class Plot():
                           marker=None,
                           color=line_color,
                           linewidth=1.5,
-                          linestyle=line_style)
+                          linestyle=line_style,
+                          label=label)
             axis.errorbar(
                 df[self.x_axis].values,
                 df[y].values,
@@ -376,7 +347,7 @@ class Plot():
                 capsize=3,
                 capthick=1.5,
                 linewidth=1.5,
-                label=label,
+#                label=label,
                 color=line_color,
                 fmt=fmt)
 
