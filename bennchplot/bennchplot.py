@@ -233,6 +233,12 @@ class Plot():
         df['total_spike_count_per_s'] = (df['local_spike_counter'] / df['model_time_sim'])
         df['total_spike_count_per_s_std'] = (df['local_spike_counter_std'] / df['model_time_sim'])
 
+        # average firing rate
+#        print('neuron number=')
+#        print(((df['network_size']-1)/2))
+        df['average_firing_rate'] = df['total_spike_count_per_s']/((df['network_size']-1)/2) # minus 1 Poisson generator
+        df['average_firing_rate_std'] = df['total_spike_count_per_s_std']/((df['network_size']-1)/2)
+
     def plot_fractions(self, axis, fill_variables,
                        interpolate=False, step=None, log=False, alpha=1.,
                        error=False, control=False, line=False, subject=None, ylims=None):
