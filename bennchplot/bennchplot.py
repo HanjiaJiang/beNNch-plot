@@ -178,8 +178,8 @@ class Plot():
         )
         df['model_time_sim'] /= self.time_scaling
         # try
-        df['wall_time_create+wall_time_connect'] = (df['wall_time_create'] + df['wall_time_connect'])
-#        df['wall_time_create+wall_time_connect'] = (df['py_time_create'] + df['py_time_connect'])
+#        df['wall_time_create+wall_time_connect'] = (df['wall_time_create'] + df['wall_time_connect'])
+        df['wall_time_create+wall_time_connect'] = (df['py_time_create'] + df['py_time_connect'])
         df['wall_time_create+wall_time_connect_std'] = (
             np.sqrt((df['wall_time_create_std']**2 +
                      df['wall_time_connect_std']**2)))
