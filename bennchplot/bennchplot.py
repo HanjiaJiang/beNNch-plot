@@ -311,7 +311,7 @@ class Plot():
                 matplotlib.ticker.ScalarFormatter())
 
     def plot_main(self, quantities, axis, log=(False, False),
-                  error_only=False, fmt='none', control=False, subject=None, line_color=None, ylims=None):
+                  error_only=False, fmt='none', control=False, subject=None, line_color=None, ylims=None, linewidth=1.5):
         """
         Main plotting function.
 
@@ -342,7 +342,7 @@ class Plot():
                           df[y],
                           marker=None,
                           color=line_color,
-                          linewidth=1.5,
+                          linewidth=linewidth,
                           linestyle=line_style,
                           label=label)
             axis.errorbar(
@@ -352,7 +352,7 @@ class Plot():
                 marker=None,
                 capsize=3,
                 capthick=1.5,
-                linewidth=1.5,
+                linewidth=linewidth,
 #                label=label,
                 color=line_color,
                 fmt=fmt)
