@@ -63,7 +63,7 @@ class Plot():
                  additional_params=pp.additional_params,
                  label_params=pp.label_params,
                  time_scaling=1,
-                 ctrl_file='/path/to/control'):
+                 ctrl_file=None):
 
         self.x_axis = x_axis
         self.x_ticks = x_ticks
@@ -76,9 +76,11 @@ class Plot():
         self.df_ctrl = None
 
         self.load_data(data_file)
-        self.load_data(ctrl_file, control=True)
+        if isinstance(ctrl_file, str):
+            self.load_data(ctrl_file, control=True)
         self.compute_derived_quantities()
-        self.compute_derived_quantities(control=True)
+        if isinstance(ctrl_file, str):
+            self.compute_derived_quantities(control=True)
 
     def load_data(self, data_file, control=False):
         """
@@ -120,6 +122,7 @@ class Plot():
                  'wall_time_phase_communicate': ['mean', 'std'],
                  'wall_time_phase_deliver': ['mean', 'std'],
                  'wall_time_phase_update': ['mean', 'std'],
+                 'wall_time_phase_secondary': ['mean', 'std'],
                  'wall_time_communicate_target_data': ['mean', 'std'],
                  'wall_time_gather_spike_data': ['mean', 'std'],
                  'wall_time_gather_target_data': ['mean', 'std'],
@@ -140,6 +143,7 @@ class Plot():
                'wall_time_phase_communicate_std', 'wall_time_phase_deliver',
                'wall_time_phase_deliver_std', 'wall_time_phase_update',
                'wall_time_phase_update_std',
+               'wall_time_phase_secondary', 'wall_time_phase_secondary_std',
                'wall_time_communicate_target_data',
                'wall_time_communicate_target_data_std',
                'wall_time_gather_spike_data',
@@ -177,7 +181,7 @@ class Plot():
             df['threads_per_task'] * df['tasks_per_node']
         )
         df['model_time_sim'] /= self.time_scaling
-        # try
+        # Use this for C++ timer
 #        df['wall_time_create+wall_time_connect'] = (df['wall_time_create'] + df['wall_time_connect'])
         df['wall_time_create+wall_time_connect'] = (df['py_time_create'] + df['py_time_connect'])
         df['wall_time_create+wall_time_connect_std'] = (
@@ -191,13 +195,15 @@ class Plot():
             df['wall_time_phase_update'] +
             df['wall_time_phase_communicate'] +
             df['wall_time_phase_deliver'] +
-            df['wall_time_phase_collocate'])
+            df['wall_time_phase_collocate'] +
+            df['wall_time_phase_secondary'])
         df['wall_time_phase_total_std'] = \
             np.sqrt(
             df['wall_time_phase_update_std']**2 +
             df['wall_time_phase_communicate_std']**2 +
             df['wall_time_phase_deliver_std']**2 +
-            df['wall_time_phase_collocate_std']**2
+            df['wall_time_phase_collocate_std']**2 +
+            df['wall_time_phase_secondary_std']**2
         )
         df['phase_total_factor'] = (
             df['wall_time_phase_total'] /
@@ -206,7 +212,7 @@ class Plot():
             df['wall_time_phase_total_std'] /
             df['model_time_sim'])
 
-        for phase in ['update', 'communicate', 'deliver', 'collocate']:
+        for phase in ['update', 'communicate', 'deliver', 'collocate', 'secondary']:
             df['phase_' + phase + '_factor'] = (
                 df['wall_time_phase_' + phase] /
                 df['model_time_sim'])
@@ -227,7 +233,7 @@ class Plot():
 
         # others = the rest
         df['phase_others_factor'] = (df['wall_time_sim'] - df['wall_time_phase_total'])/df['model_time_sim']
-        df['frac_phase_others'] = (100 - (df['frac_phase_ccd'] + df['frac_phase_update']))
+        df['frac_phase_others'] = (100 - (df['frac_phase_ccd'] + df['frac_phase_update'] + df['frac_phase_secondary']))
 
         # total spike count
         df['total_spike_count_per_s'] = (df['local_spike_counter'] / df['model_time_sim'])
@@ -311,7 +317,7 @@ class Plot():
                 matplotlib.ticker.ScalarFormatter())
 
     def plot_main(self, quantities, axis, log=(False, False),
-                  error_only=False, fmt='none', control=False, subject=None, line_color=None, ylims=None, linewidth=1.5):
+                  error_only=False, fmt='none', control=False, subject=None, line_color=None, ylims=None, linewidth=1.5, linestyle=None):
         """
         Main plotting function.
 
@@ -335,6 +341,7 @@ class Plot():
 
         for y in quantities:
             line_style = ':' if control else '-'
+            line_style = linestyle if isinstance(linestyle, str) else line_style
             line_color = self.color_params[y] if line_color is None else line_color
             label = subject if isinstance(subject, str) else self.label_params[y]
             if not error_only:
