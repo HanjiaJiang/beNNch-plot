@@ -122,7 +122,8 @@ class Plot():
                  'wall_time_phase_communicate': ['mean', 'std'],
                  'wall_time_phase_deliver': ['mean', 'std'],
                  'wall_time_phase_update': ['mean', 'std'],
-                 'wall_time_phase_secondary': ['mean', 'std'],
+                 'wall_time_phase_deliver_secondary': ['mean', 'std'],
+                 'wall_time_phase_gather_secondary': ['mean', 'std'],
                  'wall_time_communicate_target_data': ['mean', 'std'],
                  'wall_time_gather_spike_data': ['mean', 'std'],
                  'wall_time_gather_target_data': ['mean', 'std'],
@@ -143,7 +144,8 @@ class Plot():
                'wall_time_phase_communicate_std', 'wall_time_phase_deliver',
                'wall_time_phase_deliver_std', 'wall_time_phase_update',
                'wall_time_phase_update_std',
-               'wall_time_phase_secondary', 'wall_time_phase_secondary_std',
+               'wall_time_phase_deliver_secondary', 'wall_time_phase_deliver_secondary_std',
+               'wall_time_phase_gather_secondary', 'wall_time_phase_gather_secondary_std',
                'wall_time_communicate_target_data',
                'wall_time_communicate_target_data_std',
                'wall_time_gather_spike_data',
@@ -182,8 +184,8 @@ class Plot():
         )
         df['model_time_sim'] /= self.time_scaling
         # Use this for C++ timer
-#        df['wall_time_create+wall_time_connect'] = (df['wall_time_create'] + df['wall_time_connect'])
-        df['wall_time_create+wall_time_connect'] = (df['py_time_create'] + df['py_time_connect'])
+        df['wall_time_create+wall_time_connect'] = (df['wall_time_create'] + df['wall_time_connect'])
+#        df['wall_time_create+wall_time_connect'] = (df['py_time_create'] + df['py_time_connect'])
         df['wall_time_create+wall_time_connect_std'] = (
             np.sqrt((df['wall_time_create_std']**2 +
                      df['wall_time_connect_std']**2)))
@@ -191,6 +193,16 @@ class Plot():
                                  df['model_time_sim'])
         df['sim_factor_std'] = (df['wall_time_sim_std'] /
                                      df['model_time_sim'])
+
+        df['wall_time_phase_secondary'] = (
+            df['wall_time_phase_deliver_secondary'] +
+            df['wall_time_phase_gather_secondary'])
+        df['wall_time_phase_secondary_std'] = \
+            np.sqrt(
+            df['wall_time_phase_deliver_secondary_std']**2 +
+            df['wall_time_phase_gather_secondary_std']**2
+        )
+
         df['wall_time_phase_total'] = (
             df['wall_time_phase_update'] +
             df['wall_time_phase_communicate'] +
