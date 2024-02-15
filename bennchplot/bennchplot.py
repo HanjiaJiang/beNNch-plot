@@ -224,7 +224,7 @@ class Plot():
             df['wall_time_phase_total_std'] /
             df['model_time_sim'])
 
-        for phase in ['update', 'communicate', 'deliver', 'collocate', 'secondary']:
+        for phase in ['update', 'communicate', 'deliver', 'collocate', 'secondary', 'deliver_secondary', 'gather_secondary']:
             df['phase_' + phase + '_factor'] = (
                 df['wall_time_phase_' + phase] /
                 df['model_time_sim'])
