@@ -376,10 +376,10 @@ class Plot():
                 color=line_color,
                 fmt=fmt)
 
-        if self.x_ticks == 'data':
-           axis.set_xticks(df[self.x_axis].values)
-        else:
-           axis.set_xticks(self.x_ticks)
+#        if self.x_ticks == 'data':
+#           axis.set_xticks(df[self.x_axis].values)
+#        else:
+#           axis.set_xticks(self.x_ticks)
 
         if isinstance(ylims, tuple):
             axis.set_ylim(ylims)
