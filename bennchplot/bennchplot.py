@@ -133,6 +133,8 @@ class Plot():
                  'network_size': 'first',
                  'num_connections': ['mean', 'std'],
                  'local_spike_counter': ['mean', 'std'],
+                 'tsodyks_synapse': ['mean', 'std'],
+                 'sic_connection': ['mean', 'std'],
                  }
 
         col = ['num_nodes', 'threads_per_task', 'tasks_per_node',
@@ -158,7 +160,9 @@ class Plot():
                'py_time_connect', 'py_time_connect_std',
                'network_size',
                'num_connections', 'num_connections_std',
-               'local_spike_counter', 'local_spike_counter_std',]
+               'local_spike_counter', 'local_spike_counter_std',
+               'tsodyks_synapse', 'tsodyks_synapse_std',
+               'sic_connection', 'sic_connection_std']
 
         df = df.drop('rng_seed', axis=1).groupby(
             ['num_nodes',
