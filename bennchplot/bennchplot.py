@@ -198,28 +198,22 @@ class Plot():
         df['sim_factor_std'] = (df['wall_time_sim_std'] /
                                      df['model_time_sim'])
 
-        df['wall_time_phase_secondary'] = (
-            df['wall_time_phase_deliver_secondary'] +
-            df['wall_time_phase_gather_secondary'])
-        df['wall_time_phase_secondary_std'] = \
-            np.sqrt(
-            df['wall_time_phase_deliver_secondary_std']**2 +
-            df['wall_time_phase_gather_secondary_std']**2
-        )
-
         df['wall_time_phase_total'] = (
             df['wall_time_phase_update'] +
             df['wall_time_phase_communicate'] +
             df['wall_time_phase_deliver'] +
             df['wall_time_phase_collocate'] +
-            df['wall_time_phase_secondary'])
+            df['wall_time_phase_deliver_secondary'] +
+            df['wall_time_phase_gather_secondary']
+        )
         df['wall_time_phase_total_std'] = \
             np.sqrt(
             df['wall_time_phase_update_std']**2 +
             df['wall_time_phase_communicate_std']**2 +
             df['wall_time_phase_deliver_std']**2 +
             df['wall_time_phase_collocate_std']**2 +
-            df['wall_time_phase_secondary_std']**2
+            df['wall_time_phase_deliver_secondary_std']**2 +
+            df['wall_time_phase_gather_secondary_std']**2
         )
         df['phase_total_factor'] = (
             df['wall_time_phase_total'] /
@@ -228,7 +222,8 @@ class Plot():
             df['wall_time_phase_total_std'] /
             df['model_time_sim'])
 
-        for phase in ['update', 'communicate', 'deliver', 'collocate', 'secondary', 'deliver_secondary', 'gather_secondary']:
+        # calculate phases and their fractions, using model_time_sim (model time) and wall_time_sim (wall time)
+        for phase in ['update', 'communicate', 'deliver', 'collocate', 'deliver_secondary', 'gather_secondary']:
             df['phase_' + phase + '_factor'] = (
                 df['wall_time_phase_' + phase] /
                 df['model_time_sim'])
@@ -237,7 +232,7 @@ class Plot():
                 100 * df['wall_time_phase_' + phase] /
                 df['wall_time_sim'])
 
-        # CCD = communicate + deliver + collocate
+        # spike CCD = collocate + communicate + deliver
         df['phase_ccd_factor'] = (
             df['phase_communicate_factor'] +
             df['phase_deliver_factor'] +
@@ -246,6 +241,15 @@ class Plot():
             df['frac_phase_communicate'] +
             df['frac_phase_deliver'] +
             df['frac_phase_collocate'])
+
+        # secondary event (gather and deliver)
+        df['phase_secondary_factor'] = (
+            df['phase_deliver_secondary_factor'] +
+            df['phase_gather_secondary_factor'])
+        df['frac_phase_secondary'] = (
+            df['frac_phase_deliver_secondary'] +
+            df['frac_phase_gather_secondary']
+        )
 
         # others = the rest
         df['phase_others_factor'] = (df['wall_time_sim'] - df['wall_time_phase_total'])/df['model_time_sim']
