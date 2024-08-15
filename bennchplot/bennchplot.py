@@ -135,6 +135,11 @@ class Plot():
                  'local_spike_counter': ['mean', 'std'],
                  'tsodyks_synapse': ['mean', 'std'],
                  'sic_connection': ['mean', 'std'],
+                 'time_construction_connect_third_inner_count': ['mean', 'std'],
+                 'time_construction_connect_third_inner_max': ['mean', 'std'],
+                 'time_construction_connect_third_inner_fill': ['mean', 'std'],
+                 'time_construction_connect_third_inner_communicate': ['mean', 'std'],
+                 'time_construction_connect_third_inner_connect': ['mean', 'std'],
                  }
 
         col = ['num_nodes', 'threads_per_task', 'tasks_per_node',
@@ -162,7 +167,13 @@ class Plot():
                'num_connections', 'num_connections_std',
                'local_spike_counter', 'local_spike_counter_std',
                'tsodyks_synapse', 'tsodyks_synapse_std',
-               'sic_connection', 'sic_connection_std']
+               'sic_connection', 'sic_connection_std',
+               'time_construction_connect_third_inner_count', 'time_construction_connect_third_inner_count_std',
+               'time_construction_connect_third_inner_max', 'time_construction_connect_third_inner_max_std',
+               'time_construction_connect_third_inner_fill', 'time_construction_connect_third_inner_fill_std',
+               'time_construction_connect_third_inner_communicate', 'time_construction_connect_third_inner_communicate_std',
+               'time_construction_connect_third_inner_connect', 'time_construction_connect_third_inner_connect_std',
+               ]
 
         df = df.drop('rng_seed', axis=1).groupby(
             ['num_nodes',

@@ -74,6 +74,11 @@ color_params = {
     'phase_gather_secondary_factor': light.mint,
     'total_memory': light.olive,
     'total_memory_per_node': light.pear,
+    'time_construction_connect_third_inner_count': light.pink,
+    'time_construction_connect_third_inner_max': light.orange,
+    'time_construction_connect_third_inner_fill': light.light_yellow,
+    'time_construction_connect_third_inner_communicate': light.mint,
+    'time_construction_connect_third_inner_connect': light.light_blue,
 }
 
 label_params = {
@@ -116,4 +121,9 @@ label_params = {
     'frac_phase_ccd': 'Spike CCD',
     'phase_others_factor': 'Other',
     'frac_phase_others': 'Other',
+    'time_construction_connect_third_inner_count': 'Third inner count',
+    'time_construction_connect_third_inner_max': 'Third inner max',
+    'time_construction_connect_third_inner_fill': 'Third inner fill',
+    'time_construction_connect_third_inner_communicate': 'Third inner communicate',
+    'time_construction_connect_third_inner_connect': 'Third inner connect',
 }
