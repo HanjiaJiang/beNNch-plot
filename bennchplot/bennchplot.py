@@ -378,7 +378,8 @@ class Plot():
             if not error_only:
                 axis.plot(df[self.x_axis],
                           df[y],
-                          marker=None,
+                          marker='.',
+                          markersize=10.0,
                           color=line_color,
                           linewidth=linewidth,
                           linestyle=line_style,
