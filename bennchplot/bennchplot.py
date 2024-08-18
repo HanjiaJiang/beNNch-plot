@@ -140,6 +140,7 @@ class Plot():
                  'time_construction_connect_third_inner_fill': ['mean', 'std'],
                  'time_construction_connect_third_inner_communicate': ['mean', 'std'],
                  'time_construction_connect_third_inner_connect': ['mean', 'std'],
+                 'time_synchronize': ['mean', 'std'],
                  }
 
         col = ['num_nodes', 'threads_per_task', 'tasks_per_node',
@@ -173,6 +174,7 @@ class Plot():
                'time_construction_connect_third_inner_fill', 'time_construction_connect_third_inner_fill_std',
                'time_construction_connect_third_inner_communicate', 'time_construction_connect_third_inner_communicate_std',
                'time_construction_connect_third_inner_connect', 'time_construction_connect_third_inner_connect_std',
+               'time_synchronize', 'time_synchronize_std',
                ]
 
         df = df.drop('rng_seed', axis=1).groupby(
@@ -307,7 +309,7 @@ class Plot():
             main_label = subject if isinstance(subject, str) else None
             main_label = main_label if fill == fill_variables[-1] else None
             line_color = 'dimgray' if control else 'k'
-            if True:
+            try:
                 frac_label = self.label_params[fill]
                 if isinstance(subject, str):
                     frac_label += f' ({subject})'
@@ -321,6 +323,8 @@ class Plot():
                                   alpha=alpha,
                                   linewidth=0.5,
                                   edgecolor='#444444')
+            except:
+                print("fill_between() failed!")
             if error:
                 axis.errorbar(np.squeeze(df[self.x_axis]),
                               np.squeeze(df[fill]) + fill_height,
@@ -334,7 +338,10 @@ class Plot():
             fill_height += df[fill].to_numpy()
 
         if self.x_ticks == 'data':
-            axis.set_xticks(np.squeeze(df[self.x_axis]))
+            try:
+                axis.set_xticks(np.squeeze(df[self.x_axis]))
+            except:
+                print("set_xticks() failed!")
         else:
             axis.set_xticks(self.x_ticks)
 
