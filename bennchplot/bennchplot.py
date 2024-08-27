@@ -135,12 +135,6 @@ class Plot():
                  'local_spike_counter': ['mean', 'std'],
                  'tsodyks_synapse': ['mean', 'std'],
                  'sic_connection': ['mean', 'std'],
-                 'time_construction_connect_third_inner_count': ['mean', 'std'],
-                 'time_construction_connect_third_inner_max': ['mean', 'std'],
-                 'time_construction_connect_third_inner_fill': ['mean', 'std'],
-                 'time_construction_connect_third_inner_communicate': ['mean', 'std'],
-                 'time_construction_connect_third_inner_connect': ['mean', 'std'],
-                 'time_synchronize': ['mean', 'std'],
                  }
 
         col = ['num_nodes', 'threads_per_task', 'tasks_per_node',
@@ -169,13 +163,22 @@ class Plot():
                'local_spike_counter', 'local_spike_counter_std',
                'tsodyks_synapse', 'tsodyks_synapse_std',
                'sic_connection', 'sic_connection_std',
-               'time_construction_connect_third_inner_count', 'time_construction_connect_third_inner_count_std',
-               'time_construction_connect_third_inner_max', 'time_construction_connect_third_inner_max_std',
-               'time_construction_connect_third_inner_fill', 'time_construction_connect_third_inner_fill_std',
-               'time_construction_connect_third_inner_communicate', 'time_construction_connect_third_inner_communicate_std',
-               'time_construction_connect_third_inner_connect', 'time_construction_connect_third_inner_connect_std',
-               'time_synchronize', 'time_synchronize_std',
                ]
+
+        # Timers for connection building in TripartiteConnect()
+        connect_timers = [
+            'time_construction_connect_third_inner_count',
+            'time_construction_connect_third_inner_max',
+            'time_construction_connect_third_inner_fill',
+            'time_construction_connect_third_inner_communicate',
+            'time_construction_connect_third_inner_connect',
+            'time_synchronize',
+        ]
+        for timer in connect_timers:
+            if timer in df.columns:
+                dict_.update({timer: ['mean', 'std']})
+                col.append(timer)
+                col.append(timer+'_std')
 
         df = df.drop('rng_seed', axis=1).groupby(
             ['num_nodes',
@@ -201,8 +204,8 @@ class Plot():
         )
         df['model_time_sim'] /= self.time_scaling
         # Use this for C++ timer
-        df['wall_time_create+wall_time_connect'] = (df['wall_time_create'] + df['wall_time_connect'])
-#        df['wall_time_create+wall_time_connect'] = (df['py_time_create'] + df['py_time_connect'])
+#        df['wall_time_create+wall_time_connect'] = (df['wall_time_create'] + df['wall_time_connect'])
+        df['wall_time_create+wall_time_connect'] = (df['py_time_create'] + df['py_time_connect'])
         df['wall_time_create+wall_time_connect_std'] = (
             np.sqrt((df['wall_time_create_std']**2 +
                      df['wall_time_connect_std']**2)))
@@ -378,6 +381,8 @@ class Plot():
             df = self.df_data
 
         for y in quantities:
+            if y not in df:
+                continue
             line_style = ':' if control else '-'
             line_style = linestyle if isinstance(linestyle, str) else line_style
             line_color = self.color_params[y] if line_color is None else line_color
